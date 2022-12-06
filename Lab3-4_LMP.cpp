@@ -147,17 +147,37 @@ void stack::View()
 	std::cout << std::endl;
 }
 
-void task1(Tree root, Tree& max_leaf, Tree& min_leaf)
+void task1(Tree root, Tree& max_leaf, Tree& min_leaf, Tree& prev_max, Tree& prev_min, bool& c_max, bool& c_min)
 {
 	if (root->right || root->left)
 	{
 		if (root->right)
 		{
-			task1(root->right, max_leaf, min_leaf);
+			task1(root->right, max_leaf, min_leaf, prev_max, prev_min, c_max, c_min);
+			if (root->right == max_leaf)
+			{
+				prev_max = root;
+				c_max = true;
+			}
+			else if (root->right == min_leaf)
+			{
+				prev_min = root;
+				c_min = true;
+			}
 		}
 		if (root->left)
 		{
-			task1(root->left, max_leaf, min_leaf);
+			task1(root->left, max_leaf, min_leaf, prev_max, prev_min, c_max, c_min);
+			if (root->left == max_leaf)
+			{
+				prev_max = root;
+				c_max = false;
+			}
+			else if (root->left == min_leaf)
+			{
+				prev_min = root;
+				c_min = false;
+			}
 		}
 	}
 	else
@@ -192,10 +212,28 @@ int main()
 	Print(root);
 
 	Tree max_leaf = nullptr, min_leaf = nullptr;
-	task1(root, max_leaf, min_leaf);
-	Tree tmp = max_leaf;
-	max_leaf = min_leaf;
-	min_leaf = tmp;
-
+	Tree prev_max = nullptr, prev_min = nullptr;
+	bool c_max = false, c_min = false; // 0 - влево, 1 - вправо
+	task1(root, max_leaf, min_leaf, prev_max, prev_min, c_max, c_min);
+	if (c_max && c_min)
+	{
+		prev_max->right = min_leaf;
+		prev_min->right = max_leaf;
+	}
+	else if (c_max && !c_min)
+	{
+		prev_max->right = min_leaf;
+		prev_min->left = max_leaf;
+	}
+	else if (!c_max && c_min)
+	{
+		prev_max->left = min_leaf;
+		prev_min->right = max_leaf;
+	}
+	else if (!c_max && !c_min)
+	{
+		prev_max->left = min_leaf;
+		prev_min->left = max_leaf;
+	}
 	Print(root);
 }
