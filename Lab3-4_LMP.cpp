@@ -147,52 +147,43 @@ void stack::View()
 	std::cout << std::endl;
 }
 
-void task1(Tree root, Tree& max_leaf, Tree& min_leaf, Tree& prev_max, Tree& prev_min, bool& c_max, bool& c_min)
+void task1(Tree root, Tree& max_leaf, Tree& min_leaf, Tree& prev_max, Tree& prev_min)
 {
 	if (root->right || root->left)
 	{
 		if (root->right)
 		{
-			task1(root->right, max_leaf, min_leaf, prev_max, prev_min, c_max, c_min);
+			task1(root->right, max_leaf, min_leaf, prev_max, prev_min);
 			if (root->right == max_leaf)
 			{
 				prev_max = root;
-				c_max = true;
 			}
 			else if (root->right == min_leaf)
 			{
 				prev_min = root;
-				c_min = true;
 			}
 		}
 		if (root->left)
 		{
-			task1(root->left, max_leaf, min_leaf, prev_max, prev_min, c_max, c_min);
+			task1(root->left, max_leaf, min_leaf, prev_max, prev_min);
 			if (root->left == max_leaf)
 			{
 				prev_max = root;
-				c_max = false;
 			}
 			else if (root->left == min_leaf)
 			{
 				prev_min = root;
-				c_min = false;
 			}
 		}
 	}
 	else
 	{
-		if (max_leaf && max_leaf->info < root->info)
+		if (!max_leaf || max_leaf->info < root->info)
 		{
 			max_leaf = root;
 		}
-		if (min_leaf && min_leaf->info > root->info)
+		if (!min_leaf || min_leaf->info > root->info)
 		{
-			min_leaf = root;
-		}
-		if (!max_leaf && !min_leaf)
-		{
-			max_leaf = root;
 			min_leaf = root;
 		}
 	}
@@ -213,24 +204,23 @@ int main()
 
 	Tree max_leaf = nullptr, min_leaf = nullptr;
 	Tree prev_max = nullptr, prev_min = nullptr;
-	bool c_max = false, c_min = false; // 0 - влево, 1 - вправо
-	task1(root, max_leaf, min_leaf, prev_max, prev_min, c_max, c_min);
-	if (c_max && c_min)
+	task1(root, max_leaf, min_leaf, prev_max, prev_min);
+	if (prev_max->right == max_leaf && prev_min->right == min_leaf)
 	{
 		prev_max->right = min_leaf;
 		prev_min->right = max_leaf;
 	}
-	else if (c_max && !c_min)
+	else if (prev_max->right == max_leaf && prev_min->left == min_leaf)
 	{
 		prev_max->right = min_leaf;
 		prev_min->left = max_leaf;
 	}
-	else if (!c_max && c_min)
+	else if (prev_max->left == max_leaf && prev_min->right == min_leaf)
 	{
 		prev_max->left = min_leaf;
 		prev_min->right = max_leaf;
 	}
-	else if (!c_max && !c_min)
+	else if (prev_max->left == max_leaf && prev_min->left == min_leaf)
 	{
 		prev_max->left = min_leaf;
 		prev_min->left = max_leaf;
