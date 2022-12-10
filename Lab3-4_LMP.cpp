@@ -189,6 +189,38 @@ void task1(Tree root, Tree& max_leaf, Tree& min_leaf, Tree& prev_max, Tree& prev
 	}
 }
 
+void task2(Tree root, Tree& max_leaf, Tree& min_leaf, Tree& prev_max, Tree& prev_min)
+{
+	stack bypass;
+
+	bypass.push(root);
+	while (!bypass.empty())
+	{
+		Tree node = bypass.pop();
+
+		if (!node->left && !node->right)
+		{
+			if (!max_leaf || max_leaf->info < node->info)
+			{
+				max_leaf = node;
+			}
+			if (!min_leaf || min_leaf->info > node->info)
+			{
+				min_leaf = node;
+			}
+		}
+
+		if (node->left)
+		{
+			bypass.push(node->left);
+		}
+		if (node->right)
+		{
+			bypass.push(node->right);
+		}
+	}
+}
+
 int main()
 {
 	SetConsoleCP(1251);
@@ -204,8 +236,11 @@ int main()
 
 	Tree max_leaf = nullptr, min_leaf = nullptr;
 	Tree prev_max = nullptr, prev_min = nullptr;
-	task1(root, max_leaf, min_leaf, prev_max, prev_min);
-	if (prev_max->right == max_leaf && prev_min->right == min_leaf)
+	//task1(root, max_leaf, min_leaf, prev_max, prev_min);
+	task2(root, max_leaf, min_leaf, prev_max, prev_min);
+
+	std::cout << "prev_max = " << prev_max->info << " prev_min = " << prev_min->info;
+	/*if (prev_max->right == max_leaf && prev_min->right == min_leaf)
 	{
 		prev_max->right = min_leaf;
 		prev_min->right = max_leaf;
@@ -225,5 +260,5 @@ int main()
 		prev_max->left = min_leaf;
 		prev_min->left = max_leaf;
 	}
-	Print(root);
+	Print(root);*/
 }
