@@ -194,30 +194,65 @@ void task2(Tree root, Tree& max_leaf, Tree& min_leaf, Tree& prev_max, Tree& prev
 	stack bypass;
 
 	bypass.push(root);
+	Tree prev = NULL;
 	while (!bypass.empty())
 	{
-		Tree node = bypass.pop();
-
-		if (!node->left && !node->right)
+		Tree current = bypass.Top();
+		if (prev == NULL || prev->left == current || prev->right == current)
 		{
-			if (!max_leaf || max_leaf->info < node->info)
+			if (current->left)
 			{
-				max_leaf = node;
+				bypass.push(current->left);
 			}
-			if (!min_leaf || min_leaf->info > node->info)
+			else if (current->right)
 			{
-				min_leaf = node;
+				bypass.push(current->right);
+			}
+			else
+			{
+				bypass.pop();
+				if (!max_leaf || max_leaf->info < current->info)
+				{
+					max_leaf = current;
+				}
+				if (!min_leaf || min_leaf->info > current->info)
+				{
+					min_leaf = current;
+				}
 			}
 		}
-
-		if (node->left)
+		else if (current->left == prev)
 		{
-			bypass.push(node->left);
+			if (current->right)
+			{
+				bypass.push(current->right);
+			}
+			else
+			{
+				bypass.pop();
+				if (current->left == max_leaf)
+				{
+					prev_max = current;
+				}
+				else if (current->left == min_leaf)
+				{
+					prev_min = current;
+				}
+			}
 		}
-		if (node->right)
+		else if (current->right == prev)
 		{
-			bypass.push(node->right);
+			bypass.pop();
+			if (current->right == max_leaf)
+			{
+				prev_max = current;
+			}
+			else if (current->right == min_leaf)
+			{
+				prev_min = current;
+			}
 		}
+		prev = current;
 	}
 }
 
@@ -233,14 +268,14 @@ int main()
 	root = Build_Balance(file, count);
 
 	Print(root);
+	std::cout << std::endl << std::endl;
 
 	Tree max_leaf = nullptr, min_leaf = nullptr;
 	Tree prev_max = nullptr, prev_min = nullptr;
 	//task1(root, max_leaf, min_leaf, prev_max, prev_min);
 	task2(root, max_leaf, min_leaf, prev_max, prev_min);
 
-	std::cout << "prev_max = " << prev_max->info << " prev_min = " << prev_min->info;
-	/*if (prev_max->right == max_leaf && prev_min->right == min_leaf)
+	if (prev_max->right == max_leaf && prev_min->right == min_leaf)
 	{
 		prev_max->right = min_leaf;
 		prev_min->right = max_leaf;
@@ -260,5 +295,5 @@ int main()
 		prev_max->left = min_leaf;
 		prev_min->left = max_leaf;
 	}
-	Print(root);*/
+	Print(root);
 }
